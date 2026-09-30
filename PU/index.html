@@ -1,0 +1,169 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Craque — Perfil do Jogador</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef2ff;--card:#fff;--ink:#12204a;--mut:#5b6790;--acc:#f59e0b;--acc2:#12a87a;--bd:#d9e1fa;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0c1533;--card:#16234f;--ink:#f2f5ff;--mut:#9aa8d6;--acc:#ffd23f;--acc2:#2ee6a6;--bd:#25366e}}
+:root[data-theme=dark]{--bg:#0c1533;--card:#16234f;--ink:#f2f5ff;--mut:#9aa8d6;--acc:#ffd23f;--acc2:#2ee6a6;--bd:#25366e}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Barlow,system-ui,sans-serif}
+h1,h2,h3,.big{font-family:'Barlow Condensed',Impact,'Arial Narrow',sans-serif;font-weight:800;margin:0;letter-spacing:.5px}
+h2{font-size:26px;margin-bottom:10px}h3{font-size:20px}small,.mut{color:var(--mut)}
+#app{max-width:720px;margin:0 auto;padding:16px 14px 110px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.g{cursor:pointer;text-align:left;font:inherit;color:inherit;background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px}
+.g .big{font-size:38px;line-height:1}.g:active,.btn:active{transform:scale(.97)}
+.bar{height:12px;border-radius:9px;background:var(--bd);overflow:hidden;margin:8px 0 4px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc));border-radius:9px;transition:width .6s}
+.btn{border:0;border-radius:14px;padding:13px 18px;font:800 19px 'Barlow Condensed',Impact,sans-serif;background:var(--acc);color:#12204a;cursor:pointer;width:100%;margin-top:8px}
+.btn.s{background:var(--bd);color:var(--ink)}.btn:disabled{opacity:.4}.btn.sm{width:auto;padding:8px 14px;font-size:16px}
+.chip{border:2px solid var(--bd);background:none;color:var(--ink);border-radius:30px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer;margin:0 6px 8px 0}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#12204a}
+.row{display:flex;align-items:center;gap:10px;margin:10px 0}.row span{flex:1}.row input[type=range]{flex:1.4;accent-color:var(--acc)}.row b{width:30px;text-align:right}
+.hero{display:flex;gap:14px;align-items:center}.av{font-size:56px;width:84px;height:84px;display:grid;place-items:center;background:var(--bd);border-radius:50%}
+.ovr{width:84px;height:96px;background:var(--acc);color:#12204a;clip-path:polygon(50% 0,100% 12%,100% 65%,50% 100%,0 65%,0 12%);display:grid;place-items:center;font:800 42px 'Barlow Condensed',Impact,sans-serif;padding-bottom:8px}
+input[type=text],input[type=number]{width:100%;padding:12px;border-radius:12px;border:2px solid var(--bd);background:var(--bg);color:var(--ink);font:inherit;margin:6px 0 12px}
+.tag{display:inline-block;padding:2px 10px;border-radius:20px;background:var(--bd);font-size:13px;font-weight:600}
+.badges{display:grid;grid-template-columns:1fr 1fr;gap:12px}.bd{text-align:center;padding:14px}.bd .e{font-size:42px}.lock{filter:grayscale(1);opacity:.45}
+.avs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.avs button{font-size:38px;background:var(--bd);border:3px solid transparent;border-radius:16px;padding:8px;cursor:pointer}.avs .on{border-color:var(--acc)}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--bd);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{flex:1;background:none;border:0;color:var(--mut);font:600 11px Barlow,sans-serif;cursor:pointer}nav button i{display:block;font-size:22px;font-style:normal}nav .on{color:var(--acc)}
+#toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translate(-50%,-90px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:30px;font-weight:600;transition:transform .3s;z-index:9;max-width:90%;text-align:center}#toast.show{transform:translate(-50%,0)}
+#lu{position:fixed;inset:0;display:none;place-items:center;background:rgba(5,10,30,.75);z-index:10;text-align:center;color:#fff;cursor:pointer}#lu.show{display:grid}
+#lu .big{font-size:64px;color:var(--acc);animation:pop .6s}@keyframes pop{0%{transform:scale(.2) rotate(-8deg);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.hero-t{font-size:56px;line-height:.95;color:var(--acc)}.up{color:var(--acc2);font-weight:800}svg text{fill:var(--ink);font:600 12px Barlow,sans-serif}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body><div id="app"></div><div id="toast"></div><div id="lu"><div><div class="big">LEVEL UP! 🔥</div><h2 id="lun"></h2></div></div>
+<script>
+/* ===== DADOS (edite aqui) ===== */
+const XP_LEVEL=500;
+const positions=['GOLEIRO','ZAGUEIRO','LATERAL','VOLANTE','MEIA','PONTA','ATACANTE'];
+const categories=[
+{id:'fis',icon:'⚡',name:'Físico',attrs:['Explosão','Velocidade','Aceleração','Resistência','Força Física','Equilíbrio','Agilidade','Coordenação','Impulsão','Flexibilidade']},
+{id:'pas',icon:'🎯',name:'Passe e Controle',attrs:['Passe curto','Passe longo','Cruzamento','Lançamento','Visão de jogo','Domínio de bola','Primeiro toque','Condução','Drible','Controle orientado']},
+{id:'fin',icon:'🥅',name:'Finalização',attrs:['Chute de longe','Chute colocado','Potência do chute','Cabeceio','Finalização de primeira','Pênaltis','Faltas','Chute com a perna fraca']},
+{id:'iq',icon:'🧠',name:'Inteligência',attrs:['Posicionamento','Tomada de decisão','Leitura de jogo','Antecipação','Movimento sem bola','Consciência espacial','Criatividade','Concentração']},
+{id:'def',icon:'🛡️',name:'Defesa',attrs:['Desarme','Interceptação','Marcação','Marcação individual','Cobertura','Antecipação defensiva','Bloqueio','Jogo aéreo']},
+{id:'esp',icon:'🔥',name:'Específicas',attrs:['1v1 Ofensivo','1v1 Defensivo','Pressão','Contra-ataque','Proteção de bola','Jogo físico','Bola parada','Cobrança de escanteio','Cobrança de falta','Liderança']},
+{id:'gk',icon:'🧤',name:'Goleiro',gk:1,attrs:['Reflexos','Saída do gol','Defesa com as mãos','Defesa de chutes','Jogo com os pés','Reposição','Cruzamentos','1v1','Posicionamento']}];
+const attributes=categories.flatMap(c=>c.attrs.map((n,i)=>({key:c.id+'.'+i,cat:c.id,name:n})));
+/* Pesos do OVERALL por posição: altere à vontade */
+const weights={default:{fis:.15,pas:.2,fin:.2,iq:.2,def:.15,esp:.1},GOLEIRO:{gk:.5,fis:.15,pas:.15,iq:.2},ZAGUEIRO:{fis:.2,pas:.1,fin:.05,iq:.2,def:.35,esp:.1},ATACANTE:{fis:.15,pas:.15,fin:.35,iq:.2,def:.05,esp:.1}};
+/* b = atributos que o treino melhora (categoria.índice) */
+const gymExercises=[
+{g:'Explosão e velocidade',icon:'💥',b:['fis.0','fis.1','fis.2','fis.8'],items:['Agachamento com salto','Salto na caixa','Sprint de 10–20m','Hip thrust','Step-up explosivo','Levantamento terra romeno']},
+{g:'Força e resistência',icon:'🏋️',b:['fis.3','fis.4'],items:['Agachamento livre','Leg press','Afundo com halteres','Cadeira extensora','Mesa flexora','Elevação de panturrilha']},
+{g:'Equilíbrio e agilidade',icon:'🌀',b:['fis.5','fis.6','fis.7'],items:['Agachamento búlgaro','Step-up','Pallof press','Deslocamento lateral com resistência','Escada com agilidade','Mudança de direção com cones']},
+{g:'Defesa e contato',icon:'🛡️',b:['def.0','def.2','esp.5'],items:['Levantamento terra','Agachamento','Remada baixa',"Farmer's walk",'Afundo com carga','Sled push']},
+{g:'Core e estabilidade',icon:'🎯',b:['fis.5','fis.4'],items:['Prancha frontal','Prancha lateral','Dead bug','Bird dog','Pallof press','Abdominal']},
+{g:'Proteção de bola e disputas',icon:'💪',b:['esp.4','esp.5','fis.4'],items:['Supino','Remada baixa','Puxada frontal',"Farmer's walk",'Landmine press','Caminhada com trenó']}];
+const fieldExercises=[
+{g:'Explosão e velocidade',icon:'💥',b:['fis.0','fis.1','fis.2','fis.8'],items:['Sprint de 10m','Sprint de 20–30m','Sprint com saída parada','Sprint com mudança de direção','Saltos sobre mini-barreiras','Corrida com resistência elástica']},
+{g:'Força e resistência',icon:'🏃',b:['fis.3','fis.4'],items:['Agachamento com peso corporal','Afundo andando','Agachamento unilateral assistido','Corrida em subida','Circuito de corrida com cones','Shuttle run']},
+{g:'Equilíbrio e agilidade',icon:'🌀',b:['fis.5','fis.6','fis.7','pas.8'],items:['Escada de agilidade','Zig-zag entre cones','Deslocamento lateral entre cones','Circuito de cones com bola','Mini-barreiras + Sprint','1x1 com mudança de direção']},
+{g:'Defesa e contato',icon:'🛡️',b:['def.0','def.2','esp.1'],items:['Deslocamento defensivo lateral','1x1 defensivo','Proteção de posição','Disputa de bola ombro a ombro','Pressão + recuperação','Duelo pela bola']},
+{g:'Core e estabilidade',icon:'🎯',b:['fis.5','fis.7'],items:['Prancha + Sprint','Prancha lateral','Equilíbrio em uma perna','Saltos unilaterais','Mini-barreira em uma perna','Passe em apoio unilateral']},
+{g:'Proteção de bola e disputas',icon:'💪',b:['esp.4','esp.5','pas.7'],items:['Proteção de bola 1x1','Rondo com contato controlado','Condução com resistência elástica','Disputa ombro a ombro + condução','Recepção de costas para o marcador','Duelo em posse em espaço reduzido']}];
+const missions=[
+{id:'m1',lv:'Fácil',icon:'⚡',t:'Velocidade',tasks:['Sprint 10m','Sprint 20m','Sprint com saída parada'],xp:150,b:{'fis.1':2,'fis.2':1}},
+{id:'m2',lv:'Fácil',icon:'🎯',t:'Passe e toque',tasks:['20 passes curtos na parede','10 passes longos','15 primeiros toques'],xp:150,b:{'pas.0':2,'pas.6':1}},
+{id:'m3',lv:'Fácil',icon:'🧘',t:'Core forte',tasks:['Prancha frontal','Prancha lateral','Dead bug'],xp:120,b:{'fis.5':1,'fis.4':1}},
+{id:'m4',lv:'Média',icon:'🌀',t:'Drible e agilidade',tasks:['Escada de agilidade','Zig-zag entre cones','Circuito de cones com bola'],xp:250,b:{'pas.8':2,'fis.6':2}},
+{id:'m5',lv:'Média',icon:'🥅',t:'Finalização',tasks:['10 chutes colocados','5 chutes de longe','5 finalizações de primeira'],xp:250,b:{'fin.1':2,'fin.0':1,'fin.4':1}},
+{id:'m6',lv:'Média',icon:'🛡️',t:'Muralha',tasks:['1x1 defensivo','Deslocamento defensivo lateral','Pressão + recuperação'],xp:250,b:{'def.0':2,'def.2':1,'esp.1':1}},
+{id:'m7',lv:'Difícil',icon:'🏋️',t:'Academia pesada',tasks:['Agachamento livre','Hip thrust','Sled push',"Farmer's walk"],xp:400,b:{'fis.4':3,'fis.0':2,'esp.5':1}},
+{id:'m8',lv:'Difícil',icon:'🔥',t:'Dono da bola',tasks:['Proteção de bola 1x1','Rondo com contato controlado','Duelo em posse em espaço reduzido'],xp:400,b:{'esp.4':3,'pas.6':2,'pas.5':1}},
+{id:'m9',lv:'Difícil',icon:'🧤',t:'Muro no gol',gk:1,tasks:['20 defesas rasteiras','10 saídas de gol','15 reposições com os pés'],xp:400,b:{'gk.0':3,'gk.1':2,'gk.4':1}}];
+const achievements=[
+{id:'motor',ic:'🏃',name:'Motor',d:'Complete 10 treinos',ok:p=>p.tr>=10},
+{id:'expl',ic:'⚡',name:'Explosivo',d:'Explosão 80+',ok:p=>p.r['fis.0']>=80},
+{id:'garc',ic:'🎯',name:'Garçom',d:'Passe curto 85+',ok:p=>p.r['pas.0']>=85},
+{id:'fin',ic:'🔥',name:'Finalizador',d:'Finalização 85+',ok:p=>avg(p,'fin')>=85},
+{id:'cer',ic:'🧠',name:'Cérebro do jogo',d:'Inteligência acima de 85',ok:p=>avg(p,'iq')>85},
+{id:'tan',ic:'💪',name:'Tanque',d:'Força Física acima de 85',ok:p=>p.r['fis.4']>85},
+{id:'evo',ic:'🏆',name:'Evolução',d:'Suba 10 pontos de Overall',ok:p=>overall(p)-p.init.o>=10},
+{id:'fogo',ic:'📅',name:'Sequência de fogo',d:'Treine 3 dias seguidos',ok:p=>p.st>=3},
+{id:'miss',ic:'🎖️',name:'Missionário',d:'Conclua 3 missões',ok:p=>p.md.length>=3},
+{id:'n5',ic:'🚀',name:'Nível 5',d:'Chegue ao nível 5',ok:p=>lvl(p.xp)>=5}];
+/* ===== LÓGICA ===== */
+const $=s=>document.querySelector(s),K='craque_v1',clamp=v=>Math.max(0,Math.min(100,v));
+const col=v=>v>=80?'var(--acc2)':v>=60?'var(--acc)':'#ff6b6b';
+const newOb=()=>({s:0,name:'',pos:'MEIA',foot:'Direito',num:10,av:'😎',base:{}});
+let S=null,P=[],cur=0,CF=0,tab='home',OG='fis',TT='gym',ob=newOb();
+try{const d=JSON.parse(localStorage.getItem(K));if(d&&d.players){P=d.players;cur=d.cur||0}else if(d&&d.r)P=[d]}catch(e){}
+S=P[cur]||null;
+const save=()=>{try{localStorage.setItem(K,JSON.stringify({players:P,cur}))}catch(e){}};
+const cats=p=>categories.filter(c=>p.pos==='GOLEIRO'?['fis','pas','iq','gk'].includes(c.id):!c.gk);
+const avg=(p,id)=>{const c=categories.find(x=>x.id===id);return Math.round(c.attrs.reduce((s,_,i)=>s+p.r[id+'.'+i],0)/c.attrs.length)};
+const overall=p=>{const w=weights[p.pos]||weights.default;let s=0,t=0;for(const id in w){s+=w[id]*avg(p,id);t+=w[id]}return Math.round(s/t)};
+const lvl=x=>Math.floor(x/XP_LEVEL)+1;
+const aname=k=>{const[c,i]=k.split('.');return categories.find(x=>x.id===c).attrs[i]};
+const gsnap=p=>Object.fromEntries(categories.map(c=>[c.id,avg(p,c.id)]));
+const snap=()=>{S.h.push({t:Date.now(),o:overall(S),g:gsnap(S)});S.h=S.h.slice(-60)};
+let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),2200)}
+function levelUp(n){$('#lun').textContent='Nível '+n;$('#lu').classList.add('show');setTimeout(()=>$('#lu').classList.remove('show'),2000)}
+$('#lu').onclick=()=>$('#lu').classList.remove('show');
+function addXP(n){const b=lvl(S.xp);S.xp+=n;if(lvl(S.xp)>b)levelUp(lvl(S.xp))}
+function chk(){let f=1;while(f){f=0;for(const a of achievements)if(!S.ach.includes(a.id)&&a.ok(S)){S.ach.push(a.id);addXP(100);toast('🏆 Conquista: '+a.name+' (+100 XP)');f=1}}}
+function bump(){const d=new Date().toDateString(),y=new Date(Date.now()-864e5).toDateString();if(S.ld!==d){S.st=S.ld===y?S.st+1:1;S.ld=d;addXP(30)}}
+const commit=(s=1)=>{if(s)snap();chk();save();render()};
+/* ===== COMPONENTES ===== */
+const xpbar=()=>{const i=S.xp%XP_LEVEL;return`<div class=bar><i style="width:${i/XP_LEVEL*100}%"></i></div><small>${i} / ${XP_LEVEL} XP · faltam ${XP_LEVEL-i} para o nível ${lvl(S.xp)+1}</small>`};
+function radar(cs,p){const n=cs.length,R=88,c=140,pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n;return[(c+Math.cos(a)*R*v/100).toFixed(1),(c+Math.sin(a)*R*v/100).toFixed(1)]};
+const grid=[25,50,75,100].map(l=>`<polygon points="${cs.map((_,i)=>pt(i,l)).join(' ')}" fill="none" stroke="var(--bd)"/>`).join('');
+const lab=cs.map((x,i)=>{const q=pt(i,124);return`<text x="${q[0]}" y="${q[1]}" text-anchor="middle" dominant-baseline="middle">${x.icon} ${avg(p,x.id)}</text>`}).join('');
+return`<svg viewBox="0 0 280 280" width="100%" style="max-width:340px;display:block;margin:auto">${grid}<polygon points="${cs.map((x,i)=>pt(i,avg(p,x.id))).join(' ')}" fill="var(--acc)" fill-opacity=".35" stroke="var(--acc)" stroke-width="3"/>${lab}</svg>`}
+function line(h){if(h.length<2)return'<p class=mut>Treine ou evolua um atributo para ver seu gráfico crescer 📈</p>';const v=h.map(x=>x.o),mn=Math.min(...v)-3,mx=Math.max(...v)+3,W=300,H=110;
+const P=h.map((x,i)=>[(i/(h.length-1)*(W-20)+10).toFixed(1),(H-8-(x.o-mn)/(mx-mn)*(H-24)).toFixed(1)]);
+return`<svg viewBox="0 0 ${W} ${H}" width="100%"><polyline points="${P.join(' ')}" fill="none" stroke="var(--acc)" stroke-width="3" stroke-linejoin="round"/>${P.map((q,i)=>`<circle cx="${q[0]}" cy="${q[1]}" r="3.5" fill="var(--acc2)"/>`).join('')}<text x="4" y="12">${mx-3}</text><text x="4" y="${H-2}">${mn+3}</text></svg>`}
+/* ===== TELAS ===== */
+const screens={
+home(){const o=overall(S),m=missions.find(x=>!S.md.includes(x.id)&&(!x.gk||S.pos==='GOLEIRO'));
+return`<div class="card hero"><div class=av>${S.av}</div><div style="flex:1"><h1 style="font-size:32px">${S.name}</h1><span class=tag>Nível ${lvl(S.xp)}</span> <span class=tag>${S.pos}</span>${xpbar()}</div><div class=ovr>${o}</div></div>
+<div class=grid><button class=g data-a=go data-v=evo>📈<div class=big>${o-S.init.o>=0?'+':''}${o-S.init.o}</div><small>Evolução do Overall</small></button>
+<button class=g data-a=go data-v=miss>🔥<div class=big>${S.st}</div><small>Dias seguidos treinando</small></button>
+<button class=g data-a=go data-v=miss>🎯<h3>${m?m.t:'Tudo feito!'}</h3><small>${m?'Próximo desafio · +'+m.xp+' XP':'Refaça missões'}</small></button>
+<button class=g data-a=go data-v=ach>🏆<div class=big>${S.ach.length}/${achievements.length}</div><small>Conquistas</small></button></div>
+<button class=btn data-a=go data-v=train>🏋️ Treinar agora</button>`},
+player(){const cs=cats(S);
+return`<div class="card hero"><div class=av>${S.av}</div><div style="flex:1"><h1 style="font-size:30px">${S.name}</h1><span class=tag>#${S.num}</span> <span class=tag>${S.pos}</span> <span class=tag>Pé ${S.foot}</span></div><div class=ovr>${overall(S)}</div></div>
+<div class=card><h3>Nível ${lvl(S.xp)}</h3>${xpbar()}</div><div class=card>${radar(cs,S)}</div>
+<div class=grid>${cs.map(c=>{const v=avg(S,c.id);return`<button class=g data-a=grp data-v=${c.id}>${c.icon}<div class=big style="color:${col(v)}">${v}</div><small>${c.name}</small><div class=bar><i style="width:${v}%"></i></div></button>`}).join('')}</div>
+<button class="btn s" data-a=go data-v=evo>📈 Minha Evolução</button><div class=card><h3>👥 Meus jogadores</h3><div style="margin-top:10px">${P.map((p,i)=>`<button class="chip ${i===cur?'on':''}" data-a=sw data-v=${i}>${p.av} ${p.name}</button>`).join('')}</div><button class=btn data-a=newp>➕ Novo jogador</button><button class="btn s" data-a=del>${CF?'⚠️ Toque de novo para apagar':'🗑️ Apagar este jogador'}</button></div>`},
+attrs(){return`<h2>📊 Atributos</h2><p class=mut style="margin-top:0">Arraste para mudar a nota. Cada ponto que sobe rende +10 XP.</p>`+cats(S).map(c=>`<div class=card><div data-a=tg data-v=${c.id} style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><h3>${c.icon} ${c.name}</h3><h3 style="color:${col(avg(S,c.id))}">${avg(S,c.id)} ${OG===c.id?'▾':'▸'}</h3></div>${OG===c.id?c.attrs.map((n,i)=>`<div class=row><span>${n}</span><input type=range min=0 max=100 value=${S.r[c.id+'.'+i]} data-k=${c.id}.${i} aria-label="${n}"><b>${S.r[c.id+'.'+i]}</b></div>`).join(''):''}</div>`).join('')},
+train(){const L=TT==='gym'?gymExercises:fieldExercises;
+return`<h2>🏋️ Treinos</h2><div><button class="chip ${TT==='gym'?'on':''}" data-a=tt data-v=gym>🏢 Academia</button><button class="chip ${TT==='field'?'on':''}" data-a=tt data-v=field>⚽ Campo</button></div><p class=mut style="margin-top:0">Toque num exercício ao terminar: +25 XP e +1 no atributo treinado.</p>`+L.map((g,gi)=>`<div class=card><h3>${g.icon} ${g.g}</h3><small>Melhora: ${g.b.map(aname).join(', ')}</small><div style="margin-top:10px">${g.items.map((x,i)=>`<button class=chip data-a=ex data-v="${gi}|${i}">✔ ${x}</button>`).join('')}</div></div>`).join('')},
+miss(){return`<h2>🎯 Missões</h2>`+missions.filter(m=>!m.gk||S.pos==='GOLEIRO').map(m=>{const d=S.md.includes(m.id),t=S.mt[m.id]||[],all=m.tasks.every((_,i)=>t[i]);
+return`<div class="card ${d?'lock':''}"><h3>${m.icon} MISSÃO: ${m.t.toUpperCase()} <span class=tag>${m.lv}</span></h3>${m.tasks.map((x,i)=>`<label class=row><input type=checkbox data-a=task data-v="${m.id}|${i}" ${t[i]?'checked':''} ${d?'disabled':''}><span>${x}</span></label>`).join('')}<small>Recompensa: +${m.xp} XP ${Object.entries(m.b).map(([k,v])=>' · +'+v+' '+aname(k)).join('')}</small>${d?`<button class="btn s" data-a=redo data-v=${m.id}>✅ Concluída · Refazer</button>`:`<button class=btn data-a=done data-v=${m.id} ${all?'':'disabled'}>Concluir missão</button>`}</div>`}).join('')},
+ach(){return`<h2>🏆 Conquistas</h2><div class=badges>${achievements.map(a=>{const u=S.ach.includes(a.id);return`<div class="card bd ${u?'':'lock'}"><div class=e>${a.ic}</div><h3>${a.name}</h3><small>${a.d}</small></div>`}).join('')}</div>`},
+evo(){const cs=cats(S),o=overall(S);
+return`<h2>📈 Minha Evolução</h2><div class=card style="text-align:center"><small>Overall</small><div class=big style="font-size:52px">${S.init.o} → <span class=up>${o}</span></div>${line(S.h)}</div><div class=card>${cs.map(c=>{const a=S.init.g[c.id],b=avg(S,c.id);return`<div style="margin-bottom:14px"><b>${c.icon} ${c.name}</b>: ${a} → <span class=up>${b}</span> (${b>=a?'+':''}${b-a})<div class=bar><i style="width:${b}%"></i></div></div>`}).join('')}</div><button class="btn s" data-a=go data-v=player>← Meu Jogador</button>`}};
+const tabs=[['home','🏠','Início'],['player','👤','Jogador'],['attrs','📊','Atributos'],['train','🏋️','Treinos'],['miss','🎯','Missões'],['ach','🏆','Conquistas']];
+/* ===== ONBOARDING ===== */
+function onboard(){const s=ob.s,p={pos:ob.pos};
+if(s===0)return`<div style="text-align:center;padding-top:8vh"><div style="font-size:72px">⚽</div><div class="big hero-t">CRAQUE</div><p>Crie seu jogador, treine, ganhe XP e suba de nível.</p><button class=btn data-a=next>Criar meu jogador</button>${P.length?'<button class="btn s" data-a=cancel>Cancelar</button>':''}</div>`;
+if(s===1)return`<h2>Crie seu jogador</h2><div class=card><label>Nome<input type=text value="${ob.name}" oninput="ob.name=this.value" maxlength=20 placeholder="Ex.: Lucas"></label><label>Número da camisa<input type=number min=1 max=99 value=${ob.num} oninput="ob.num=this.value"></label><b>Posição</b><div style="margin-top:8px">${positions.map(x=>`<button class="chip ${ob.pos===x?'on':''}" data-a=pos data-v=${x}>${x}</button>`).join('')}</div><b>Pé dominante</b><div style="margin-top:8px">${['Direito','Esquerdo','Ambos'].map(x=>`<button class="chip ${ob.foot===x?'on':''}" data-a=foot data-v=${x}>${x}</button>`).join('')}</div></div><button class=btn data-a=next>Continuar</button>`;
+if(s===2)return`<h2>Escolha seu avatar</h2><div class="card avs">${['😎','😄','🤩','😤','🥷','🦁','🐺','🦅'].map(x=>`<button class="${ob.av===x?'on':''}" data-a=av data-v=${x}>${x}</button>`).join('')}</div><button class=btn data-a=next>Continuar</button><button class="btn s" data-a=back>Voltar</button>`;
+if(s===3)return`<h2>Avaliação inicial</h2><p class=mut style="margin-top:0">Dê uma nota de 0 a 100 para cada área. Depois você ajusta cada detalhe.</p><div class=card>${cats(p).map(c=>`<div class=row><span>${c.icon} ${c.name}</span><input type=range min=0 max=100 value=${ob.base[c.id]??60} data-ob=${c.id} aria-label="${c.name}"><b>${ob.base[c.id]??60}</b></div>`).join('')}</div><button class=btn data-a=next>Ver meu Overall</button><button class="btn s" data-a=back>Voltar</button>`;
+const t=mk();return`<div style="text-align:center;padding-top:6vh"><div class=av style="margin:auto">${ob.av}</div><h1 style="font-size:34px;margin:10px 0">${t.name}</h1><div class=ovr style="margin:auto;width:130px;height:150px;font-size:70px">${overall(t)}</div><p>Overall inicial · ${t.pos}</p><button class=btn data-a=create>Entrar no jogo 🔥</button><button class="btn s" data-a=back>Voltar</button></div>`}
+function mk(){const p={name:ob.name.trim(),num:ob.num,pos:ob.pos,foot:ob.foot,av:ob.av,r:{},xp:0,tr:0,st:0,ld:'',mt:{},md:[],ach:[],h:[]};categories.forEach(c=>c.attrs.forEach((_,i)=>p.r[c.id+'.'+i]=clamp((ob.base[c.id]??60)+((i*7)%9)-4)));return p}
+/* ===== AÇÕES ===== */
+const act={
+go:v=>{CF=0;tab=v;render();scrollTo(0,0)},grp:v=>{OG=v;act.go('attrs')},tg:v=>{OG=OG===v?'':v;render()},tt:v=>{TT=v;render()},
+next:()=>{if(ob.s===1&&!ob.name.trim())return toast('Digite seu nome');ob.s++;render()},back:()=>{ob.s--;render()},
+pos:v=>{ob.pos=v;render()},foot:v=>{ob.foot=v;render()},av:v=>{ob.av=v;render()},
+create:()=>{S=mk();S.init={o:overall(S),g:gsnap(S)};P.push(S);cur=P.length-1;snap();chk();tab='home';save();render();scrollTo(0,0)},
+newp:()=>{CF=0;S=null;ob=newOb();render();scrollTo(0,0)},
+cancel:()=>{S=P[cur];render()},
+sw:v=>{CF=0;cur=+v;S=P[cur];tab='home';save();render();scrollTo(0,0)},
+del:()=>{if(!CF){CF=1;return render()}CF=0;P.splice(cur,1);cur=0;S=P[0]||null;ob=newOb();tab='home';save();render();scrollTo(0,0)},
+ex:v=>{const[gi,i]=v.split('|'),g=(TT==='gym'?gymExercises:fieldExercises)[gi],k=g.b[Math.floor(Math.random()*g.b.length)];S.r[k]=clamp(S.r[k]+1);S.tr++;bump();addXP(25);toast(`+25 XP · +1 ${aname(k)}`);commit()},
+task:(v,t)=>{const[m,i]=v.split('|');(S.mt[m]=S.mt[m]||[])[i]=t.checked;save();render()},
+done:v=>{const m=missions.find(x=>x.id===v);for(const k in m.b)S.r[k]=clamp(S.r[k]+m.b[k]);S.md.push(v);S.tr++;bump();addXP(m.xp);toast(`Missão cumprida! +${m.xp} XP`);commit()},
+redo:v=>{S.md=S.md.filter(x=>x!==v);S.mt[v]=[];save();render()}};
+document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(t&&act[t.dataset.a]&&t.type!=='checkbox')act[t.dataset.a](t.dataset.v,t)});
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.a==='task')act.task(t.dataset.v,t);else if(t.dataset.k){const o=S.r[t.dataset.k],n=+t.value;S.r[t.dataset.k]=n;if(n>o)addXP((n-o)*10);commit()}});
+document.addEventListener('input',e=>{const t=e.target;if(t.type==='range'){t.nextElementSibling.textContent=t.value;if(t.dataset.ob)ob.base[t.dataset.ob]=+t.value}});
+function render(){$('#app').innerHTML=S?screens[tab]()+`<nav>${tabs.map(([id,i,l])=>`<button class="${tab===id||(tab==='evo'&&id==='player')?'on':''}" data-a=go data-v=${id}><i>${i}</i>${l}</button>`).join('')}</nav>`:onboard()}
+render();
+</script></body></html>
