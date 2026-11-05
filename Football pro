@@ -1,0 +1,79 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                body {
+                  background-color: white; /* Ensure the iframe has a white background */
+                }
+
+                
+              </style>
+                        </head>
+                        <body>
+                                      <div class="video-placeholder">
+            ▶️ Vídeo do YouTube/Instagram incorporado aqui<br>
+            <small style="margin-top:8px;display:block">(Link cadastrado pelo administrador)</small>
+          </div>
+          <div class="video-placeholder" id="exVideo">
+            ▶️ Vídeo do YouTube/Instagram incorporado aqui<br>
+            <small style="margin-top:8px;display:block">(Link cadastrado pelo administrador)</small>
+          </div>
+
+
+              <script>
+                              const trainings = [
+  {id:1,name:'Drible em Zigue-Zague',desc:'Treino de condução e drible em zigue-zague utilizando cones para melhorar o controle de bola e mudanças de direção.',modality:'campo',skill:'Drible / Finta',category:'Técnico',difficulty:'Médio',duration:'10 min',icon:'⚽',video:'https://www.youtube.com/shorts/8ID3oNim4Q4'},
+  {id:2,name:'Corrida Intervalada',desc:'Aumente sua resistência aeróbia com sprints de alta intensidade.',modality:'campo',skill:'Resistência Aeróbia',category:'Físico',difficulty:'Médio',duration:'15 min',icon:'🏃'},
+  {id:3,name:'Finalização Precisa',desc:'Melhore sua pontaria com finalizações de primeira em alvos específicos.',modality:'campo',skill:'Finalização',category:'Técnico',difficulty:'Fácil',duration:'12 min',icon:'🎯'},
+  {id:4,name:'Power Clean',desc:'Desenvolva explosão e potência com levantamento olímpico.',modality:'academia',skill:'Explosão / Potência',category:'Físico',difficulty:'Alto',duration:'20 min',icon:'🏋️'},
+  {id:5,name:'Squat Jumps',desc:'Pliometria para explosão de membros inferiores.',modality:'casa',skill:'Explosão / Potência',category:'Físico',difficulty:'Médio',duration:'10 min',icon:'💪'},
+  {id:6,name:'Passe Contra a Parede',desc:'Melhore seu passe curto e controle orientado.',modality:'casa',skill:'Passe Curto',category:'Técnico',difficulty:'Fácil',duration:'15 min',icon:'🧱'},
+  {id:7,name:'Sled Push (Trenó)',desc:'Força e aceleração com empurrar trenó de carga.',modality:'academia',skill:'Aceleração',category:'Físico',difficulty:'Alto',duration:'15 min',icon:'🛷'},
+  {id:8,name:'Rondo 4x2',desc:'4 pessoas com posse de bola e 2 marcadores tentando recuperar a bola, trabalhando a posse e a recuperação em espaço reduzido.',modality:'campo',skill:'Visão de Jogo',category:'Tático',difficulty:'Médio',duration:'20 min',icon:'🔄',video:'https://www.youtube.com/shorts/SQ_tPWet61A'},
+  {id:9,name:'Embaixadinhas',desc:'Controle de bola e coordenação motora fina.',modality:'casa',skill:'Domínio de Bola',category:'Técnico',difficulty:'Fácil',duration:'10 min',icon:'🎪'},
+  {id:10,name:'Nordic Hamstring',desc:'Prevenção de lesões e força de isquiotibiais.',modality:'academia',skill:'Velocidade Máxima',category:'Físico',difficulty:'Alto',duration:'15 min',icon:'🦵'},
+  {id:11,name:'1x1 em Corredor',desc:'Drible e contenção em espaço reduzido no corredor, focado em superar o marcador ou proteger a bola em situações de 1 contra 1.',modality:'campo',skill:'Duelo 1x1',category:'Técnico',difficulty:'Médio',duration:'15 min',icon:'⚔️',video:'https://youtu.be/AnXtVLdYR8s?si=08J8qm6bMufo-9xa'},
+  {id:12,name:'Meditação Mindfulness',desc:'Foco e concentração através de respiração guiada.',modality:'casa',skill:'Concentração',category:'Mental',difficulty:'Fácil',duration:'10 min',icon:'🧘'}
+];
+
+function openExercise(id){
+  const t = trainings.find(x=>x.id===id);
+  if(!t) return;
+  document.getElementById('exName').textContent = t.name;
+  document.getElementById('exDesc').textContent = t.desc;
+  document.getElementById('exModality').textContent = t.modality==='academia'?'Academia':t.modality==='campo'?'Campo':'Casa';
+  document.getElementById('exSkill').textContent = t.skill;
+  document.getElementById('exDifficulty').textContent = t.difficulty;
+  document.getElementById('exDuration').textContent = t.duration;
+  document.getElementById('exCategory').textContent = t.category;
+  
+  // Lógica de incorporação do vídeo
+  const videoContainer = document.getElementById('exVideo');
+  if (t.video) {
+    let embedUrl = t.video;
+    if (embedUrl.includes('youtube.com/shorts/')) {
+      const videoId = embedUrl.split('/shorts/')[1].split('?')[0];
+      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (embedUrl.includes('youtu.be/')) {
+      const videoId = embedUrl.split('youtu.be/')[1].split('?')[0];
+      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (embedUrl.includes('youtube.com/watch?v=')) {
+      const videoId = embedUrl.split('v=')[1].split('&')[0];
+      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    }
+    videoContainer.innerHTML = `<iframe width="100%" height="100%" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px;"></iframe>`;
+  } else {
+    videoContainer.innerHTML = `▶️ Vídeo do YouTube/Instagram incorporado aqui<br><small style="margin-top:8px;display:block">(Link cadastrado pelo administrador)</small>`;
+  }
+  
+  navigateTo('exercicio');
+}
+
+
+              </script>
+                        </body>
+                        </html>
+                    
