@@ -1,79 +1,1634 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOOTBALL PRO — Plataforma de Treinamento</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg-dark:#0a0e1a;
+    --bg-panel:#111827;
+    --bg-card:#1a2235;
+    --bg-card-hover:#222b42;
+    --neon:#39ff14;
+    --neon-soft:#2ecc71;
+    --neon-dim:rgba(57,255,20,.15);
+    --text:#ffffff;
+    --text-dim:#9ca3af;
+    --text-muted:#6b7280;
+    --border:rgba(255,255,255,.08);
+    --danger:#ef4444;
+    --warning:#f59e0b;
+    --info:#3b82f6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+  body{background:var(--bg-dark);color:var(--text);min-height:100vh;overflow-x:hidden}
+  
+  /* LAYOUT */
+  .app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+  
+  /* SIDEBAR */
+  .sidebar{
+    background:linear-gradient(180deg,#0d1220 0%,#0a0e1a 100%);
+    border-right:1px solid var(--border);
+    padding:24px 16px;
+    position:sticky;top:0;height:100vh;
+    display:flex;flex-direction:column;
+  }
+  .logo{display:flex;align-items:center;gap:10px;margin-bottom:40px;padding:0 8px}
+  .logo-icon{
+    width:40px;height:40px;
+    background:radial-gradient(circle,var(--neon) 0%,transparent 70%);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;
+  }
+  .logo-text{font-weight:800;font-size:18px;letter-spacing:1px}
+  .logo-text span{color:var(--neon)}
+  
+  .nav{display:flex;flex-direction:column;gap:4px;flex:1}
+  .nav-item{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 16px;border-radius:10px;
+    color:var(--text-dim);cursor:pointer;
+    transition:all .2s;font-size:14px;font-weight:500;
+  }
+  .nav-item:hover{background:var(--bg-card);color:var(--text)}
+  .nav-item.active{
+    background:linear-gradient(90deg,var(--neon-dim),transparent);
+    color:var(--neon);border-left:3px solid var(--neon);
+  }
+  .nav-icon{font-size:18px;width:24px;text-align:center}
+  
+  .sidebar-footer{
+    margin-top:auto;padding-top:20px;border-top:1px solid var(--border);
+    display:flex;align-items:center;gap:12px;
+  }
+  .user-avatar{
+    width:40px;height:40px;border-radius:50%;
+    background:linear-gradient(135deg,var(--neon),var(--neon-soft));
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;color:#000;font-size:16px;
+  }
+  .user-info{flex:1}
+  .user-name{font-weight:600;font-size:14px}
+  .user-role{font-size:12px;color:var(--text-muted)}
+  
+  /* MAIN CONTENT */
+  .main{padding:32px;overflow-y:auto;height:100vh}
+  .page{display:none;animation:fadeIn .3s ease}
+  .page.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
+  .page-title{font-size:28px;font-weight:700}
+  .page-title span{color:var(--neon)}
+  
+  /* CARDS & GRID */
+  .grid{display:grid;gap:20px}
+  .grid-2{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  .grid-4{grid-template-columns:repeat(4,1fr)}
+  
+  .card{
+    background:var(--bg-card);border:1px solid var(--border);
+    border-radius:16px;padding:24px;transition:all .2s;
+  }
+  .card:hover{border-color:var(--neon);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .card-title{font-size:16px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .card-title .icon{color:var(--neon)}
+  
+  /* HERO SECTION */
+  .hero{
+    background:linear-gradient(135deg,rgba(57,255,20,.1) 0%,rgba(10,14,26,0) 100%);
+    border:1px solid var(--border);border-radius:20px;
+    padding:32px;margin-bottom:32px;position:relative;overflow:hidden;
+  }
+  .hero::before{
+    content:'';position:absolute;top:-50%;right:-20%;
+    width:400px;height:400px;background:radial-gradient(circle,var(--neon-dim) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .hero-greeting{font-size:14px;color:var(--text-dim);margin-bottom:8px}
+  .hero-title{font-size:32px;font-weight:800;margin-bottom:16px;line-height:1.2}
+  .hero-title span{color:var(--neon)}
+  .hero-stats{display:flex;gap:24px;margin-top:24px}
+  .stat-item{text-align:center}
+  .stat-value{font-size:24px;font-weight:700;color:var(--neon)}
+  .stat-label{font-size:12px;color:var(--text-muted);margin-top:4px}
+  
+  /* PROGRESS BAR */
+  .progress-container{margin-top:16px}
+  .progress-header{display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;color:var(--text-dim)}
+  .progress-bar{
+    height:8px;background:var(--bg-dark);border-radius:4px;overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;background:linear-gradient(90deg,var(--neon),var(--neon-soft));
+    border-radius:4px;transition:width .5s ease;
+  }
+  
+  /* BUTTONS */
+  .btn{
+    padding:10px 20px;border-radius:8px;font-weight:600;font-size:14px;
+    cursor:pointer;transition:all .2s;border:none;display:inline-flex;
+    align-items:center;gap:8px;
+  }
+  .btn-primary{
+    background:linear-gradient(90deg,var(--neon),var(--neon-soft));
+    color:#000;
+  }
+  .btn-primary:hover{opacity:.9;transform:scale(1.02)}
+  .btn-secondary{
+    background:var(--bg-card);color:var(--text);border:1px solid var(--border);
+  }
+  .btn-secondary:hover{border-color:var(--neon);color:var(--neon)}
+  .btn-danger{background:var(--danger);color:#fff}
+  .btn-sm{padding:6px 12px;font-size:12px}
+  
+  /* TRAINING CARDS */
+  .training-card{
+    background:var(--bg-card);border:1px solid var(--border);
+    border-radius:16px;padding:20px;cursor:pointer;transition:all .2s;
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .training-card:hover{
+    border-color:var(--neon);transform:translateY(-4px);
+    box-shadow:0 12px 32px rgba(57,255,20,.1);
+  }
+  .training-icon{
+    width:48px;height:48px;border-radius:12px;
+    background:var(--neon-dim);display:flex;align-items:center;
+    justify-content:center;font-size:24px;
+  }
+  .training-name{font-weight:600;font-size:16px}
+  .training-desc{font-size:13px;color:var(--text-dim);line-height:1.5;flex:1}
+  .training-meta{
+    display:flex;gap:12px;font-size:12px;color:var(--text-muted);
+    padding-top:12px;border-top:1px solid var(--border);
+  }
+  .training-meta span{display:flex;align-items:center;gap:4px}
+  
+  /* FILTERS */
+  .filters{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+  .filter-btn{
+    padding:8px 16px;border-radius:20px;background:var(--bg-card);
+    border:1px solid var(--border);color:var(--text-dim);
+    cursor:pointer;transition:all .2s;font-size:13px;
+  }
+  .filter-btn:hover,.filter-btn.active{
+    background:var(--neon-dim);border-color:var(--neon);color:var(--neon);
+  }
+  
+  /* EXERCISE DETAIL */
+  .exercise-hero{
+    background:var(--bg-card);border:1px solid var(--border);
+    border-radius:20px;padding:32px;margin-bottom:24px;
+  }
+  .exercise-hero h2{font-size:28px;font-weight:700;margin-bottom:12px}
+  .exercise-hero p{color:var(--text-dim);font-size:16px;line-height:1.6;margin-bottom:24px}
+  .exercise-meta{display:flex;gap:20px;margin-top:16px;flex-wrap:wrap;position:relative}
+  .exercise-meta .meta-item{
+    display:flex;align-items:center;gap:6px;
+    padding:6px 12px;background:var(--bg-dark);
+    border-radius:8px;font-size:12px;
+  }
+  .exercise-meta .meta-item strong{color:var(--neon)}
+  
+  .video-placeholder{
+    background:#000;border-radius:12px;
+    height:300px;display:flex;align-items:center;justify-content:center;
+    color:var(--text-dim);font-size:14px;
+    border:1px solid var(--border);
+    margin-bottom:20px;
+  }
+  
+  /* ADMIN */
+  .admin-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:32px}
+  .stat-card{
+    background:var(--bg-card);border:1px solid var(--border);
+    border-radius:16px;padding:24px;text-align:center;
+  }
+  .stat-card .value{font-size:32px;font-weight:700;color:var(--neon);margin-bottom:8px}
+  .stat-card .label{font-size:14px;color:var(--text-dim)}
+  
+  /* TABLES */
+  .table-container{overflow-x:auto;border-radius:12px;border:1px solid var(--border)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{
+    background:var(--bg-dark);padding:16px;text-align:left;
+    font-weight:600;color:var(--text-dim);border-bottom:1px solid var(--border);
+  }
+  td{
+    padding:16px;border-bottom:1px solid var(--border);
+    color:var(--text);
+  }
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--bg-card-hover)}
+  
+  .badge{
+    padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600;
+    display:inline-block;
+  }
+  .badge-success{background:rgba(46,204,113,.15);color:var(--neon-soft)}
+  .badge-warning{background:rgba(245,158,11,.15);color:var(--warning)}
+  .badge-danger{background:rgba(239,68,68,.15);color:var(--danger)}
+  .badge-info{background:rgba(59,130,246,.15);color:var(--info)}
+  
+  /* MODALS */
+  .modal{
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    background:rgba(0,0,0,.8);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;z-index:1000;
+  }
+  .modal.active{display:flex}
+  .modal-content{
+    background:var(--bg-panel);border:1px solid var(--border);
+    border-radius:20px;padding:32px;width:90%;max-width:500px;
+    animation:modalIn .3s ease;
+  }
+  @keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+  .modal-title{font-size:20px;font-weight:700}
+  .modal-close{
+    width:32px;height:32px;border-radius:50%;background:var(--bg-card);
+    border:none;color:var(--text);cursor:pointer;display:flex;
+    align-items:center;justify-content:center;font-size:18px;
+  }
+  .modal-close:hover{background:var(--danger);color:#fff}
+  
+  /* FORMS */
+  .form-group{margin-bottom:20px}
+  .form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text-dim)}
+  .form-control{
+    width:100%;padding:12px 16px;background:var(--bg-dark);
+    border:1px solid var(--border);border-radius:8px;
+    color:var(--text);font-size:14px;transition:all .2s;
+  }
+  .form-control:focus{outline:none;border-color:var(--neon);box-shadow:0 0 0 3px var(--neon-dim)}
+  textarea.form-control{min-height:100px;resize:vertical}
+  
+  /* ACHIEVEMENTS */
+  .achievement-card{
+    background:var(--bg-card);border:1px solid var(--border);
+    border-radius:16px;padding:20px;text-align:center;
+    transition:all .2s;position:relative;overflow:hidden;
+  }
+  .achievement-card.unlocked{border-color:var(--warning)}
+  .achievement-card.unlocked::before{
+    content:'';position:absolute;top:0;left:0;width:100%;height:3px;
+    background:linear-gradient(90deg,var(--warning),#fbbf24);
+  }
+  .achievement-card.locked{opacity:.5;filter:grayscale(1)}
+  .achievement-icon{font-size:32px;margin-bottom:12px}
+  .achievement-name{font-weight:600;font-size:14px;margin-bottom:4px}
+  .achievement-desc{font-size:12px;color:var(--text-muted)}
+  
+  /* MOBILE */
+  .mobile-menu-btn{
+    display:none;position:fixed;top:16px;left:16px;z-index:100;
+    width:40px;height:40px;border-radius:8px;background:var(--bg-card);
+    border:1px solid var(--border);color:var(--text);cursor:pointer;
+    align-items:center;justify-content:center;font-size:20px;
+  }
+  
+  @media(max-width:1024px){
+    .app{grid-template-columns:1fr}
+    .sidebar{
+      position:fixed;left:-100%;top:0;width:280px;z-index:99;
+      transition:left .3s ease;
+    }
+    .sidebar.open{left:0}
+    .mobile-menu-btn{display:flex}
+    .main{padding:24px 16px;padding-top:72px}
+    .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+    .admin-stats{grid-template-columns:repeat(2,1fr)}
+    .hero-stats{flex-wrap:wrap}
+  }
+  
+  /* UTILS */
+  .text-neon{color:var(--neon)}
+  .text-dim{color:var(--text-dim)}
+  .text-muted{color:var(--text-muted)}
+  .mt-2{margin-top:8px}
+  .mt-4{margin-top:16px}
+  .mb-2{margin-bottom:8px}
+  .mb-4{margin-bottom:16px}
+  .flex{display:flex}
+  .flex-between{display:flex;justify-content:space-between;align-items:center}
+  .gap-2{gap:8px}
+  .gap-4{gap:16px}
+</style>
+</head>
+<body>
+<button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
 
-                        <!DOCTYPE html>
-                        <html lang="en">
-                        <head>
-                            <meta charset="UTF-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <style>
-                body {
-                  background-color: white; /* Ensure the iframe has a white background */
-                }
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">⚽</div>
+      <div class="logo-text">FOOTBALL<span>PRO</span></div>
+    </div>
+    
+    <nav class="nav">
+      <div class="nav-item active" data-page="inicio">
+        <span class="nav-icon">🏠</span> Início
+      </div>
+      <div class="nav-item" data-page="treinos">
+        <span class="nav-icon">📋</span> Treinos
+      </div>
+      <div class="nav-item" data-page="perfil">
+        <span class="nav-icon">👤</span> Meu Perfil
+      </div>
+      <div class="nav-item" data-page="desempenho">
+        <span class="nav-icon">📊</span> Desempenho
+      </div>
+      <div class="nav-item" data-page="conquistas">
+        <span class="nav-icon">🏆</span> Conquistas
+      </div>
+      <div class="nav-item" data-page="avaliacao">
+        <span class="nav-icon">⭐</span> Avaliação
+      </div>
+      <div class="nav-item" data-page="admin">
+        <span class="nav-icon">⚙️</span> Administração
+      </div>
+      <div class="nav-item" data-page="configuracoes">
+        <span class="nav-icon">🔧</span> Configurações
+      </div>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <div class="user-avatar">L</div>
+      <div class="user-info">
+        <div class="user-name">Lucas Mendes</div>
+        <div class="user-role">Atleta · Nível 5</div>
+      </div>
+    </div>
+  </aside>
 
-                
-              </style>
-                        </head>
-                        <body>
-                                      <div class="video-placeholder">
-            ▶️ Vídeo do YouTube/Instagram incorporado aqui<br>
-            <small style="margin-top:8px;display:block">(Link cadastrado pelo administrador)</small>
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <!-- INÍCIO -->
+    <section class="page active" id="page-inicio">
+      <div class="hero">
+        <div class="hero-greeting">Olá, Lucas! Continue evoluindo em seus treinos</div>
+        <div class="hero-title">EVOLUA. TREINE. <span>CONQUISTE.</span></div>
+        <p style="color:var(--text-dim);max-width:600px;margin-bottom:24px">
+          Você está indo muito bem! Foque em melhorar seus atributos de finalização e velocidade para alcançar o próximo nível.
+        </p>
+        
+        <div class="progress-container" style="max-width:400px">
+          <div class="progress-header">
+            <span>Nível 5</span>
+            <span>520 / 800 XP</span>
           </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:65%"></div>
+          </div>
+        </div>
+        
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-value">78%</div>
+            <div class="stat-label">Desempenho Geral</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">47</div>
+            <div class="stat-label">Treinos Concluídos</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value text-neon">85</div>
+            <div class="stat-label">Destaque: Drible</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-between mb-4">
+        <h3 style="font-size:20px;font-weight:700">🎯 Próximo Desafio</h3>
+        <button class="btn btn-secondary btn-sm" onclick="navigateTo('treinos')">Ver todos →</button>
+      </div>
+      
+      <div class="card" style="border-left:3px solid var(--neon);margin-bottom:32px">
+        <div class="flex-between">
+          <div>
+            <div style="font-weight:600;font-size:16px;margin-bottom:8px">Finalização Precisa</div>
+            <div style="font-size:13px;color:var(--text-dim)">Complete 3 treinos de finalização nível médio para desbloquear o desafio avançado.</div>
+            <div class="progress-container" style="max-width:300px;margin-top:12px">
+              <div class="progress-header">
+                <span>Progresso</span>
+                <span>1 / 3</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:33%"></div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="navigateTo('treinos')">Iniciar ▶</button>
+        </div>
+      </div>
+
+      <div class="flex-between mb-4">
+        <h3 style="font-size:20px;font-weight:700">⭐ Treinamentos Recomendados</h3>
+        <button class="btn btn-secondary btn-sm" onclick="navigateTo('treinos')">Ver todos →</button>
+      </div>
+      
+      <div class="grid grid-3" id="recommendedTrainings"></div>
+    </section>
+
+    <!-- TREINOS -->
+    <section class="page" id="page-treinos">
+      <div class="header">
+        <div class="page-title">Catálogo de <span>Treinamentos</span></div>
+      </div>
+      
+      <p style="color:var(--text-dim);margin-bottom:24px">Explore exercícios por categoria, modalidade e dificuldade</p>
+      
+      <div class="filters">
+        <button class="filter-btn active" data-filter="todos">Todos</button>
+        <button class="filter-btn" data-filter="academia">🏋️ Academia</button>
+        <button class="filter-btn" data-filter="campo">⚽ Campo</button>
+        <button class="filter-btn" data-filter="casa">🏠 Casa</button>
+        <button class="filter-btn" data-filter="tecnico">Técnico</button>
+        <button class="filter-btn" data-filter="fisico">Físico</button>
+        <button class="filter-btn" data-filter="tatico">Tático</button>
+      </div>
+
+      <div class="grid grid-3" id="trainingsCatalog"></div>
+    </section>
+
+    <!-- EXERCÍCIO INDIVIDUAL -->
+    <section class="page" id="page-exercicio">
+      <button class="btn btn-secondary" onclick="navigateTo('treinos')" style="margin-bottom:16px">← Voltar ao catálogo</button>
+      
+      <div class="exercise-hero">
+        <h2 id="exName">Drible em Zigue-Zague</h2>
+        <p id="exDesc">Desenvolva sua capacidade de drible com mudanças de direção em alta velocidade.</p>
+        <div class="exercise-meta">
+          <div class="meta-item">📂 <strong id="exModality">Campo</strong></div>
+          <div class="meta-item">🎯 <strong id="exSkill">Drible / Finta</strong></div>
+          <div class="meta-item">⚡ <strong id="exDifficulty">Médio</strong></div>
+          <div class="meta-item">⏱️ <strong id="exDuration">10 min</strong></div>
+          <div class="meta-item">🏷️ <strong id="exCategory">Técnico & Coordenativo</strong></div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px"><span class="icon">🎬</span> Vídeo Demonstrativo</div>
           <div class="video-placeholder" id="exVideo">
             ▶️ Vídeo do YouTube/Instagram incorporado aqui<br>
             <small style="margin-top:8px;display:block">(Link cadastrado pelo administrador)</small>
           </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px"><span class="icon">📋</span> Instruções</div>
+          <ul style="color:var(--text-dim);font-size:14px;line-height:1.8;padding-left:20px">
+            <li>Posicione 5 cones em linha reta com 1m de distância.</li>
+            <li>Conduza a bola em zigue-zague usando a parte interna e externa do pé.</li>
+            <li>Mantenha a cabeça levantada o máximo possível.</li>
+            <li>Acelere após o último cone e finalize.</li>
+            <li>Repita 5 vezes, alternando o pé dominante.</li>
+          </ul>
+          
+          <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+            <div class="card-title"><span class="icon">✅</span> Critérios de Conclusão</div>
+            <ul style="color:var(--text-dim);font-size:13px;line-height:1.6;padding-left:20px">
+              <li>Completar 5 repetições sem perder o controle da bola</li>
+              <li>Manter tempo médio abaixo de 12s por repetição</li>
+              <li>Cabeça levantada em pelo menos 3 das 5 repetições</li>
+            </ul>
+          </div>
+          
+          <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+            <div class="card-title"><span class="icon">📊</span> Critérios de Avaliação</div>
+            <ul style="color:var(--text-dim);font-size:13px;line-height:1.6;padding-left:20px">
+              <li><strong>Nível 1:</strong> Executa em baixa velocidade, sem adversário</li>
+              <li><strong>Nível 2:</strong> Aplica em velocidade moderada, dificuldade em acelerar após</li>
+              <li><strong>Nível 3:</strong> Desequilibra o marcador e conecta com passe/finalização</li>
+            </ul>
+          </div>
+
+          <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+            <div class="card-title"><span class="icon">🛡️</span> Segurança e Cuidados</div>
+            <ul style="color:var(--text-dim);font-size:13px;line-height:1.6;padding-left:20px">
+              <li>⚠️ Aquecimento de 10 min obrigatório</li>
+              <li>👟 Use chuteiras adequadas ao piso</li>
+              <li>💧 Mantenha hidratação durante o treino</li>
+              <li>🚫 Não execute com dores musculares</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-4 mt-4">
+        <button class="btn btn-primary" style="flex:1">▶️ Iniciar Treino</button>
+        <button class="btn btn-secondary" style="flex:1" onclick="openCompletionModal()">📤 Registrar Conclusão</button>
+      </div>
+    </section>
+
+    <!-- PERFIL -->
+    <section class="page" id="page-perfil">
+      <div class="header">
+        <div class="page-title">Meu <span>Perfil</span></div>
+      </div>
+      
+      <p style="color:var(--text-dim);margin-bottom:24px">Informações pessoais e especialização do atleta</p>
+      
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title"><span class="icon">👤</span> Dados do Atleta</div>
+          <div class="form-group">
+            <label>Nome Completo</label>
+            <input type="text" class="form-control" value="Lucas Mendes">
+          </div>
+          <div class="form-group">
+            <label>Data de Nascimento</label>
+            <input type="date" class="form-control" value="2005-03-15">
+          </div>
+          <div class="form-group">
+            <label>Posição / Função</label>
+            <select class="form-control">
+              <option>Goleiro</option>
+              <option>Defensor</option>
+              <option selected>Meio-Campista</option>
+              <option>Atacante</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Pé Dominante</label>
+            <select class="form-control">
+              <option selected>Direito</option>
+              <option>Esquerdo</option>
+              <option>Ambidestro</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%">Salvar Alterações</button>
+        </div>
+
+        <div>
+          <div class="card mb-4">
+            <div class="card-title"><span class="icon">📊</span> Resumo de Progresso</div>
+            <div class="grid grid-2" style="gap:16px">
+              <div style="text-align:center;padding:16px;background:var(--bg-dark);border-radius:12px">
+                <div style="font-size:24px;font-weight:700;color:var(--neon)">520 XP</div>
+                <div style="font-size:12px;color:var(--text-muted)">Acumulado</div>
+              </div>
+              <div style="text-align:center;padding:16px;background:var(--bg-dark);border-radius:12px">
+                <div style="font-size:24px;font-weight:700;color:var(--neon)">5</div>
+                <div style="font-size:12px;color:var(--text-muted)">Nível do App</div>
+              </div>
+              <div style="text-align:center;padding:16px;background:var(--bg-dark);border-radius:12px">
+                <div style="font-size:24px;font-weight:700;color:var(--neon)">47</div>
+                <div style="font-size:12px;color:var(--text-muted)">Treinos Concluídos</div>
+              </div>
+              <div style="text-align:center;padding:16px;background:var(--bg-dark);border-radius:12px">
+                <div style="font-size:24px;font-weight:700;color:var(--neon)">78%</div>
+                <div style="font-size:12px;color:var(--text-muted)">Desempenho Geral</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="icon">🏆</span> Conquistas Desbloqueadas</div>
+            <div class="grid grid-3" style="gap:12px">
+              <div class="achievement-card unlocked">
+                <div class="achievement-icon">⭐</div>
+                <div class="achievement-name">Mestre do Drible</div>
+                <div class="achievement-desc">Nível 3 em Drible</div>
+              </div>
+              <div class="achievement-card unlocked">
+                <div class="achievement-icon">⚡</div>
+                <div class="achievement-name">Velocidade Máxima</div>
+                <div class="achievement-desc">10 sprints completos</div>
+              </div>
+              <div class="achievement-card unlocked">
+                <div class="achievement-icon">🔥</div>
+                <div class="achievement-name">Sequência Perfeita</div>
+                <div class="achievement-desc">7 dias seguidos</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DESEMPENHO -->
+    <section class="page" id="page-desempenho">
+      <div class="header">
+        <div class="page-title">Meu <span>Desempenho</span></div>
+      </div>
+      
+      <div class="filters mb-4">
+        <button class="filter-btn active">📊 Atributos</button>
+        <button class="filter-btn">🕐 Histórico</button>
+        <button class="filter-btn">🏆 Conquistas</button>
+      </div>
+
+      <div class="grid grid-2 mb-4">
+        <div class="card">
+          <div class="card-title"><span class="icon">⭐</span> Seu Perfil de Habilidades</div>
+          <canvas id="radarChart" height="250"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="icon">📈</span> Evolução Geral</div>
+          <div style="text-align:center;padding:20px">
+            <div style="font-size:48px;font-weight:800;color:var(--neon)">+18%</div>
+            <div style="color:var(--text-dim)">nos últimos 30 dias</div>
+          </div>
+          <canvas id="lineChart" height="150"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="icon">🎯</span> Dimensões de Desempenho</div>
+        <div class="grid grid-2" style="gap:16px">
+          <div>
+            <div class="flex-between mb-2">
+              <span>⚔️ Ataque</span>
+              <span class="text-neon">82</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:82%"></div></div>
+          </div>
+          <div>
+            <div class="flex-between mb-2">
+              <span>🎨 Técnica</span>
+              <span class="text-neon">85</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
+          </div>
+          <div>
+            <div class="flex-between mb-2">
+              <span>⚡ Velocidade</span>
+              <span class="text-neon">78</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:78%"></div></div>
+          </div>
+          <div>
+            <div class="flex-between mb-2">
+              <span>💪 Físico</span>
+              <span class="text-neon">75</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+          </div>
+          <div>
+            <div class="flex-between mb-2">
+              <span>🛡️ Defesa</span>
+              <span class="text-neon">70</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-title"><span class="icon">🕐</span> Histórico de Avaliações</div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Habilidade</th>
+                <th>Nível Anterior</th>
+                <th>Novo Nível</th>
+                <th>Responsável</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>02/11/2026</td>
+                <td>Drible / Finta</td>
+                <td>Nível 2</td>
+                <td><span class="text-neon">Nível 3</span></td>
+                <td>Treinador Carlos</td>
+                <td><span class="badge badge-success">Aprovado</span></td>
+              </tr>
+              <tr>
+                <td>28/10/2026</td>
+                <td>Passe Curto</td>
+                <td>Nível 1</td>
+                <td><span class="text-neon">Nível 2</span></td>
+                <td>Treinador Carlos</td>
+                <td><span class="badge badge-success">Aprovado</span></td>
+              </tr>
+              <tr>
+                <td>20/10/2026</td>
+                <td>Finalização</td>
+                <td>—</td>
+                <td><span class="text-neon">Nível 1</span></td>
+                <td>Autoavaliação</td>
+                <td><span class="badge badge-warning">Em análise</span></td>
+              </tr>
+              <tr>
+                <td>15/10/2026</td>
+                <td>Velocidade Máxima</td>
+                <td>Nível 1</td>
+                <td><span class="text-neon">Nível 2</span></td>
+                <td>Treinador Carlos</td>
+                <td><span class="badge badge-success">Aprovado</span></td>
+              </tr>
+              <tr>
+                <td>08/10/2026</td>
+                <td>Condução de Bola</td>
+                <td>—</td>
+                <td><span class="text-neon">Nível 2</span></td>
+                <td>Treinador Carlos</td>
+                <td><span class="badge badge-success">Aprovado</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONQUISTAS -->
+    <section class="page" id="page-conquistas">
+      <div class="header">
+        <div class="page-title">🏆 Todas as <span>Conquistas</span></div>
+      </div>
+      
+      <p style="color:var(--text-dim);margin-bottom:24px">Desbloqueie medalhas ao atingir marcos na plataforma</p>
+      
+      <div class="filters mb-4">
+        <button class="filter-btn active">🏅 Conquistas Desbloqueadas (7/20)</button>
+        <button class="filter-btn">🔒 Conquistas Bloqueadas</button>
+      </div>
+
+      <div class="grid grid-4">
+        <div class="achievement-card unlocked">
+          <div class="achievement-icon">⭐</div>
+          <div class="achievement-name">Mestre do Drible</div>
+          <div class="achievement-desc">Nível 3 em Drible</div>
+        </div>
+        <div class="achievement-card unlocked">
+          <div class="achievement-icon">⚡</div>
+          <div class="achievement-name">Velocidade Máxima</div>
+          <div class="achievement-desc">10 sprints completos</div>
+        </div>
+        <div class="achievement-card unlocked">
+          <div class="achievement-icon">🔥</div>
+          <div class="achievement-name">Sequência Perfeita</div>
+          <div class="achievement-desc">7 dias seguidos</div>
+        </div>
+        <div class="achievement-card unlocked">
+          <div class="achievement-icon">🎯</div>
+          <div class="achievement-name">Primeiro Gol</div>
+          <div class="achievement-desc">Finalização aprovada</div>
+        </div>
+        <div class="achievement-card locked">
+          <div class="achievement-icon">🛡️</div>
+          <div class="achievement-name">Muralha</div>
+          <div class="achievement-desc">10 desarmes em treino</div>
+        </div>
+        <div class="achievement-card locked">
+          <div class="achievement-icon">👑</div>
+          <div class="achievement-name">Líder Nato</div>
+          <div class="achievement-desc">Nível 5 em Mental</div>
+        </div>
+        <div class="achievement-card locked">
+          <div class="achievement-icon">🏃</div>
+          <div class="achievement-name">Maratonista</div>
+          <div class="achievement-desc">50 treinos de resistência</div>
+        </div>
+        <div class="achievement-card locked">
+          <div class="achievement-icon">🎪</div>
+          <div class="achievement-name">Circense</div>
+          <div class="achievement-desc">100 embaixadinhas</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AVALIAÇÃO -->
+    <section class="page" id="page-avaliacao">
+      <div class="header">
+        <div class="page-title">Avaliação de <span>Habilidades</span></div>
+      </div>
+      
+      <p style="color:var(--text-dim);margin-bottom:24px">Avalie seu domínio em cada habilidade conforme os descritores do Anexo 2</p>
+      
+      <div class="filters mb-4">
+        <button class="filter-btn active">Todas</button>
+        <button class="filter-btn">Técnico & Coordenativo</button>
+        <button class="filter-btn">Físico & Motor</button>
+        <button class="filter-btn">Finalização & Criatividade</button>
+        <button class="filter-btn">Tático-Cognitivo</button>
+        <button class="filter-btn">Defensivo & Tático</button>
+      </div>
+
+      <div class="card mb-4">
+        <div class="form-group">
+          <label>Drible / Finta</label>
+          <select class="form-control">
+            <option>Nível 1 - Iniciante</option>
+            <option selected>Nível 2 - Intermediário</option>
+            <option>Nível 3 - Avançado</option>
+            <option>Nível 4 - Elite</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Passe Curto</label>
+          <select class="form-control">
+            <option>Nível 1 - Iniciante</option>
+            <option selected>Nível 2 - Intermediário</option>
+            <option>Nível 3 - Avançado</option>
+            <option>Nível 4 - Elite</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Finalização</label>
+          <select class="form-control">
+            <option selected>Nível 1 - Iniciante</option>
+            <option>Nível 2 - Intermediário</option>
+            <option>Nível 3 - Avançado</option>
+            <option>Nível 4 - Elite</option>
+          </select>
+        </div>
+        <div class="flex gap-4 mt-4">
+          <button class="btn btn-primary" style="flex:1">💾 Salvar Avaliações</button>
+          <button class="btn btn-secondary" style="flex:1">📤 Enviar para Treinador</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMINISTRAÇÃO -->
+    <section class="page" id="page-admin">
+      <div class="header">
+        <div class="page-title">Painel <span>Administrativo</span></div>
+      </div>
+      
+      <p style="color:var(--text-dim);margin-bottom:24px">Gerencie habilidades, treinamentos, avaliações e atletas</p>
+      
+      <div class="admin-stats">
+        <div class="stat-card">
+          <div class="value">42</div>
+          <div class="label">Habilidades Cadastradas</div>
+        </div>
+        <div class="stat-card">
+          <div class="value">28</div>
+          <div class="label">Treinamentos Ativos</div>
+        </div>
+        <div class="stat-card">
+          <div class="value">156</div>
+          <div class="label">Atletas Ativos</div>
+        </div>
+        <div class="stat-card">
+          <div class="value text-warning">12</div>
+          <div class="label">Avaliações Pendentes</div>
+        </div>
+      </div>
+
+      <div class="filters mb-4">
+        <button class="filter-btn active">Habilidades</button>
+        <button class="filter-btn">Treinamentos</button>
+        <button class="filter-btn">Atletas</button>
+        <button class="filter-btn">Avaliações</button>
+        <button class="filter-btn">Configurações</button>
+      </div>
+
+      <div class="card mb-4">
+        <div class="flex-between mb-4">
+          <div class="card-title" style="margin:0"><span class="icon">📋</span> Cadastro de Habilidades</div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modalHabilidade')">+ Nova Habilidade</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Aplicação</th>
+                <th>Situação</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Drible / Finta</td>
+                <td>Técnico & Coordenativo</td>
+                <td>Geral</td>
+                <td><span class="badge badge-success">Ativa</span></td>
+                <td><button class="btn btn-secondary btn-sm">Editar</button></td>
+              </tr>
+              <tr>
+                <td>Explosão / Potência</td>
+                <td>Físico & Motor</td>
+                <td>Geral</td>
+                <td><span class="badge badge-success">Ativa</span></td>
+                <td><button class="btn btn-secondary btn-sm">Editar</button></td>
+              </tr>
+              <tr>
+                <td>Jogo Aéreo Defensivo</td>
+                <td>Defensivo & Tático</td>
+                <td>Geral</td>
+                <td><span class="badge badge-warning">Em revisão</span></td>
+                <td><button class="btn btn-secondary btn-sm">Revisar</button></td>
+              </tr>
+              <tr>
+                <td>Pressão Imediata</td>
+                <td>Transversal / Mental</td>
+                <td>Geral</td>
+                <td><span class="badge badge-warning">Em revisão</span></td>
+                <td><button class="btn btn-secondary btn-sm">Revisar</button></td>
+              </tr>
+              <tr>
+                <td>Liderança</td>
+                <td>Transversal / Mental</td>
+                <td>Geral</td>
+                <td><span class="badge badge-warning">Em revisão</span></td>
+                <td><button class="btn btn-secondary btn-sm">Revisar</button></td>
+              </tr>
+              <tr>
+                <td>Reflexos (Goleiro)</td>
+                <td>Técnico Específico</td>
+                <td>Goleiro</td>
+                <td><span class="badge badge-success">Ativa</span></td>
+                <td><button class="btn btn-secondary btn-sm">Editar</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="flex-between mb-4">
+          <div class="card-title" style="margin:0"><span class="icon">📋</span> Catálogo de Treinamentos</div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modalTreinamento')">+ Novo Treinamento</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Modalidade</th>
+                <th>Habilidade</th>
+                <th>Dificuldade</th>
+                <th>Situação</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Drible em Zigue-Zague</td>
+                <td>Campo</td>
+                <td>Drible / Finta</td>
+                <td>Médio</td>
+                <td><span class="badge badge-success">Disponível</span></td>
+              </tr>
+              <tr>
+                <td>Power Clean</td>
+                <td>Academia</td>
+                <td>Explosão / Potência</td>
+                <td>Alto</td>
+                <td><span class="badge badge-success">Disponível</span></td>
+              </tr>
+              <tr>
+                <td>Squat Jumps</td>
+                <td>Casa</td>
+                <td>Explosão / Potência</td>
+                <td>Médio</td>
+                <td><span class="badge badge-success">Disponível</span></td>
+              </tr>
+              <tr>
+                <td>Finalização de Primeira</td>
+                <td>Campo</td>
+                <td>Finalização</td>
+                <td>Médio</td>
+                <td><span class="badge badge-warning">Em elaboração</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title"><span class="icon">👥</span> Atletas Cadastrados</div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Posição</th>
+                  <th>Nível</th>
+                  <th>XP</th>
+                  <th>Última Avaliação</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Lucas Mendes</td>
+                  <td>Meio-Campista</td>
+                  <td>5</td>
+                  <td>520</td>
+                  <td>02/11/2026</td>
+                </tr>
+                <tr>
+                  <td>Pedro Alves</td>
+                  <td>Atacante</td>
+                  <td>7</td>
+                  <td>890</td>
+                  <td>01/11/2026</td>
+                </tr>
+                <tr>
+                  <td>Rafael Costa</td>
+                  <td>Goleiro</td>
+                  <td>4</td>
+                  <td>410</td>
+                  <td>30/10/2026</td>
+                </tr>
+                <tr>
+                  <td>Thiago Souza</td>
+                  <td>Defensor</td>
+                  <td>6</td>
+                  <td>720</td>
+                  <td>28/10/2026</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="icon">⏳</span> Avaliações Pendentes de Aprovação</div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Atleta</th>
+                  <th>Habilidade</th>
+                  <th>Nível Proposto</th>
+                  <th>Data</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Lucas Mendes</td>
+                  <td>Finalização</td>
+                  <td>Nível 1</td>
+                  <td>20/10/2026</td>
+                  <td>
+                    <button class="btn btn-primary btn-sm">Aprovar</button>
+                    <button class="btn btn-danger btn-sm">Reprovar</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Pedro Alves</td>
+                  <td>Velocidade Máxima</td>
+                  <td>Nível 3</td>
+                  <td>18/10/2026</td>
+                  <td>
+                    <button class="btn btn-primary btn-sm">Aprovar</button>
+                    <button class="btn btn-danger btn-sm">Reprovar</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-title"><span class="icon">⚙️</span> Configurações do Sistema</div>
+        <div class="grid grid-3" style="gap:16px">
+          <div style="padding:16px;background:var(--bg-dark);border-radius:12px">
+            <div style="font-weight:600;margin-bottom:8px">Categorias de Habilidades</div>
+            <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px">
+              Físico & Motor<br>
+              Técnico & Coordenativo<br>
+              Finalização & Criatividade<br>
+              Tático-Cognitivo<br>
+              Defensivo & Tático<br>
+              Transversal / Mental<br>
+              Técnico Específico de Goleiro
+            </div>
+            <button class="btn btn-secondary btn-sm" style="width:100%">Editar</button>
+            <button class="btn btn-primary btn-sm" style="width:100%;margin-top:8px">+ Nova Categoria</button>
+          </div>
+          <div style="padding:16px;background:var(--bg-dark);border-radius:12px">
+            <div style="font-weight:600;margin-bottom:8px">Modalidades de Treinamento</div>
+            <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px">
+              🏋️ Academia<br>
+              ⚽ Campo<br>
+              🏠 Casa
+            </div>
+            <button class="btn btn-secondary btn-sm" style="width:100%">Editar</button>
+            <button class="btn btn-primary btn-sm" style="width:100%;margin-top:8px">+ Nova Modalidade</button>
+          </div>
+          <div style="padding:16px;background:var(--bg-dark);border-radius:12px">
+            <div style="font-weight:600;margin-bottom:8px">Dimensões de Desempenho</div>
+            <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px">
+              ⚔️ Ataque<br>
+              🎨 Técnica<br>
+              ⚡ Velocidade<br>
+              💪 Físico<br>
+              🛡️ Defesa
+            </div>
+            <button class="btn btn-secondary btn-sm" style="width:100%">Editar</button>
+            <button class="btn btn-primary btn-sm" style="width:100%;margin-top:8px">+ Nova Dimensão</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
 
-              <script>
-                              const trainings = [
-  {id:1,name:'Drible em Zigue-Zague',desc:'Treino de condução e drible em zigue-zague utilizando cones para melhorar o controle de bola e mudanças de direção.',modality:'campo',skill:'Drible / Finta',category:'Técnico',difficulty:'Médio',duration:'10 min',icon:'⚽',video:'https://www.youtube.com/shorts/8ID3oNim4Q4'},
-  {id:2,name:'Corrida Intervalada',desc:'Aumente sua resistência aeróbia com sprints de alta intensidade.',modality:'campo',skill:'Resistência Aeróbia',category:'Físico',difficulty:'Médio',duration:'15 min',icon:'🏃'},
-  {id:3,name:'Finalização Precisa',desc:'Melhore sua pontaria com finalizações de primeira em alvos específicos.',modality:'campo',skill:'Finalização',category:'Técnico',difficulty:'Fácil',duration:'12 min',icon:'🎯'},
-  {id:4,name:'Power Clean',desc:'Desenvolva explosão e potência com levantamento olímpico.',modality:'academia',skill:'Explosão / Potência',category:'Físico',difficulty:'Alto',duration:'20 min',icon:'🏋️'},
-  {id:5,name:'Squat Jumps',desc:'Pliometria para explosão de membros inferiores.',modality:'casa',skill:'Explosão / Potência',category:'Físico',difficulty:'Médio',duration:'10 min',icon:'💪'},
-  {id:6,name:'Passe Contra a Parede',desc:'Melhore seu passe curto e controle orientado.',modality:'casa',skill:'Passe Curto',category:'Técnico',difficulty:'Fácil',duration:'15 min',icon:'🧱'},
-  {id:7,name:'Sled Push (Trenó)',desc:'Força e aceleração com empurrar trenó de carga.',modality:'academia',skill:'Aceleração',category:'Físico',difficulty:'Alto',duration:'15 min',icon:'🛷'},
-  {id:8,name:'Rondo 4x2',desc:'4 pessoas com posse de bola e 2 marcadores tentando recuperar a bola, trabalhando a posse e a recuperação em espaço reduzido.',modality:'campo',skill:'Visão de Jogo',category:'Tático',difficulty:'Médio',duration:'20 min',icon:'🔄',video:'https://www.youtube.com/shorts/SQ_tPWet61A'},
-  {id:9,name:'Embaixadinhas',desc:'Controle de bola e coordenação motora fina.',modality:'casa',skill:'Domínio de Bola',category:'Técnico',difficulty:'Fácil',duration:'10 min',icon:'🎪'},
-  {id:10,name:'Nordic Hamstring',desc:'Prevenção de lesões e força de isquiotibiais.',modality:'academia',skill:'Velocidade Máxima',category:'Físico',difficulty:'Alto',duration:'15 min',icon:'🦵'},
-  {id:11,name:'1x1 em Corredor',desc:'Drible e contenção em espaço reduzido no corredor, focado em superar o marcador ou proteger a bola em situações de 1 contra 1.',modality:'campo',skill:'Duelo 1x1',category:'Técnico',difficulty:'Médio',duration:'15 min',icon:'⚔️',video:'https://youtu.be/AnXtVLdYR8s?si=08J8qm6bMufo-9xa'},
-  {id:12,name:'Meditação Mindfulness',desc:'Foco e concentração através de respiração guiada.',modality:'casa',skill:'Concentração',category:'Mental',difficulty:'Fácil',duration:'10 min',icon:'🧘'}
-];
+    <!-- CONFIGURAÇÕES -->
+    <section class="page" id="page-configuracoes">
+      <div class="header">
+        <div class="page-title">Configurações</div>
+      </div>
+      
+      <p style="color:var(--text-dim);margin-bottom:24px">Personalize sua experiência no Football Pro</p>
+      
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title"><span class="icon">🔔</span> Notificações</div>
+          <div class="form-group">
+            <label>Lembretes de Treino</label>
+            <select class="form-control">
+              <option>Ativados</option>
+              <option>Desativados</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Novos Desafios</label>
+            <select class="form-control">
+              <option>Ativados</option>
+              <option>Desativados</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Aprovações do Treinador</label>
+            <select class="form-control">
+              <option>Ativados</option>
+              <option>Desativados</option>
+            </select>
+          </div>
+        </div>
 
-function openExercise(id){
-  const t = trainings.find(x=>x.id===id);
-  if(!t) return;
-  document.getElementById('exName').textContent = t.name;
-  document.getElementById('exDesc').textContent = t.desc;
-  document.getElementById('exModality').textContent = t.modality==='academia'?'Academia':t.modality==='campo'?'Campo':'Casa';
-  document.getElementById('exSkill').textContent = t.skill;
-  document.getElementById('exDifficulty').textContent = t.difficulty;
-  document.getElementById('exDuration').textContent = t.duration;
-  document.getElementById('exCategory').textContent = t.category;
-  
-  // Lógica de incorporação do vídeo
-  const videoContainer = document.getElementById('exVideo');
-  if (t.video) {
-    let embedUrl = t.video;
-    if (embedUrl.includes('youtube.com/shorts/')) {
-      const videoId = embedUrl.split('/shorts/')[1].split('?')[0];
-      embedUrl = `https://www.youtube.com/embed/${videoId}`;
-    } else if (embedUrl.includes('youtu.be/')) {
-      const videoId = embedUrl.split('youtu.be/')[1].split('?')[0];
-      embedUrl = `https://www.youtube.com/embed/${videoId}`;
-    } else if (embedUrl.includes('youtube.com/watch?v=')) {
-      const videoId = embedUrl.split('v=')[1].split('&')[0];
-      embedUrl = `https://www.youtube.com/embed/${videoId}`;
-    }
-    videoContainer.innerHTML = `<iframe width="100%" height="100%" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px;"></iframe>`;
-  } else {
-    videoContainer.innerHTML = `▶️ Vídeo do YouTube/Instagram incorporado aqui<br><small style="margin-top:8px;display:block">(Link cadastrado pelo administrador)</small>`;
+        <div class="card">
+          <div class="card-title"><span class="icon">🎨</span> Preferências</div>
+          <div class="form-group">
+            <label>Unidade de Medida</label>
+            <select class="form-control">
+              <option>Métrico (kg, m)</option>
+              <option>Imperial (lb, ft)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Idioma</label>
+            <select class="form-control">
+              <option>Português (BR)</option>
+              <option>English</option>
+              <option>Español</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Zona Horária</label>
+            <select class="form-control">
+              <option>América/São Paulo (GMT-3)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="icon">🔒</span> Privacidade</div>
+          <div class="form-group">
+            <label>Perfil Público</label>
+            <select class="form-control">
+              <option>Visível para treinadores</option>
+              <option>Privado</option>
+              <option>Público</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Compartilhar Conquistas</label>
+            <select class="form-control">
+              <option>Sim</option>
+              <option>Não</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="icon">⚠️</span> Segurança</div>
+          <div class="form-group">
+            <label>Alterar Senha</label>
+            <input type="password" class="form-control" placeholder="••••••••">
+          </div>
+          <div class="form-group">
+            <label>Confirmação</label>
+            <input type="password" class="form-control" placeholder="••••••••">
+          </div>
+          <button class="btn btn-primary" style="width:100%">Atualizar Senha</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- MODAIS -->
+<div class="modal" id="modalHabilidade">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Nova Habilidade</div>
+      <button class="modal-close" onclick="closeModal('modalHabilidade')">×</button>
+    </div>
+    <div class="form-group">
+      <label>Nome da Habilidade</label>
+      <input type="text" class="form-control" placeholder="Ex: Drible em Velocidade">
+    </div>
+    <div class="form-group">
+      <label>Descrição</label>
+      <textarea class="form-control" placeholder="Descreva a habilidade..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Categoria Principal</label>
+      <select class="form-control">
+        <option>Físico & Motor</option>
+        <option>Técnico & Coordenativo</option>
+        <option>Finalização & Criatividade</option>
+        <option>Tático-Cognitivo</option>
+        <option>Defensivo & Tático</option>
+        <option>Transversal / Mental</option>
+        <option>Técnico Específico de Goleiro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Aplicação</label>
+      <select class="form-control">
+        <option>Geral</option>
+        <option>Jogador de Linha</option>
+        <option>Goleiro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Situação</label>
+      <select class="form-control">
+        <option>Em elaboração</option>
+        <option>Pendente de revisão</option>
+        <option>Aprovado</option>
+        <option>Disponível</option>
+        <option>Inativo</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea class="form-control"></textarea>
+    </div>
+    <div class="flex gap-4">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modalHabilidade')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="closeModal('modalHabilidade')">Cadastrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modalTreinamento">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Novo Treinamento</div>
+      <button class="modal-close" onclick="closeModal('modalTreinamento')">×</button>
+    </div>
+    <div class="form-group">
+      <label>Nome do Treinamento</label>
+      <input type="text" class="form-control" placeholder="Ex: Drible em Zigue-Zague">
+    </div>
+    <div class="form-group">
+      <label>Descrição</label>
+      <textarea class="form-control" placeholder="Descreva o treinamento..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Objetivo</label>
+      <input type="text" class="form-control" placeholder="Ex: Melhorar controle de bola">
+    </div>
+    <div class="grid grid-2" style="gap:16px">
+      <div class="form-group">
+        <label>Modalidade</label>
+        <select class="form-control">
+          <option>Academia</option>
+          <option>Campo</option>
+          <option>Casa</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Dificuldade</label>
+        <select class="form-control">
+          <option>Fácil</option>
+          <option>Médio</option>
+          <option>Difícil</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Duração (min)</label>
+      <input type="number" class="form-control" placeholder="15">
+    </div>
+    <div class="form-group">
+      <label>Habilidade(s) Trabalhada(s)</label>
+      <select class="form-control" multiple style="height:100px">
+        <option>Drible / Finta</option>
+        <option>Passe Curto</option>
+        <option>Finalização</option>
+        <option>Explosão / Potência</option>
+        <option>Velocidade Máxima</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Materiais Necessários</label><input type="text" class="form-control" placeholder="Ex: Bolas, cones, coletes"></div>
+    <div class="form-group"><label>Link do Vídeo (YouTube/Instagram)</label><input type="url" class="form-control" placeholder="https://..."></div>
+    <div class="form-group"><label>Critérios de Conclusão</label><textarea class="form-control"></textarea></div>
+    <div class="form-group"><label>Pré-requisitos</label><input type="text" class="form-control" placeholder="Ex: Nível 1 em Condução"></div>
+    <div class="flex gap-4">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modalTreinamento')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="closeModal('modalTreinamento')">Cadastrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modalConclusao">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Registrar Conclusão do Treino</div>
+      <button class="modal-close" onclick="closeModal('modalConclusao')">×</button>
+    </div>
+    <div class="form-group">
+      <label>Método de Validação</label>
+      <select class="form-control">
+        <option>Autodeclaração</option>
+        <option>Validação pelo treinador</option>
+        <option>Avaliação baseada em resultados</option>
+        <option>Avaliação por critérios observáveis</option>
+      </select>
+    </div>
+    <div class="grid grid-2" style="gap:16px">
+      <div class="form-group">
+        <label>Tempo de Execução</label>
+        <input type="text" class="form-control" placeholder="Ex: 12 min">
+      </div>
+      <div class="form-group">
+        <label>Repetições Concluídas</label>
+        <input type="number" class="form-control" placeholder="Ex: 5">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Observações / Evidências</label>
+      <textarea class="form-control" placeholder="Descreva como foi a execução..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Anexar Vídeo/Foto (opcional)</label>
+      <input type="file" class="form-control">
+    </div>
+    <div style="background:rgba(245,158,11,.1);border:1px solid var(--warning);border-radius:8px;padding:12px;margin-bottom:20px;font-size:13px;color:var(--warning)">
+      ⚠️ Ao enviar, o treino ficará com status "Em análise" até aprovação do treinador.
+    </div>
+    <div class="flex gap-4">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modalConclusao')">Cancelar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="closeModal('modalConclusao')">📤 Enviar para Validação</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modalValidacao">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Validação do Treinador</div>
+      <button class="modal-close" onclick="closeModal('modalValidacao')">×</button>
+    </div>
+    <div class="form-group">
+      <label>Status da Validação</label>
+      <select class="form-control">
+        <option>Aprovado</option>
+        <option>Reprovado</option>
+        <option>Necessita de nova execução</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Feedback ao Atleta</label>
+      <textarea class="form-control" placeholder="Descreva os pontos de melhoria..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>XP a conceder</label>
+      <input type="number" class="form-control" value="20">
+    </div>
+    <div class="form-group">
+      <label>Recomendar evolução de nível?</label>
+      <select class="form-control">
+        <option>Não</option>
+        <option>Sim — sugerir reavaliação</option>
+      </select>
+    </div>
+    <div class="flex gap-4">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modalValidacao')">Cancelar</button>
+      <button class="btn btn-danger" style="flex:1" onclick="closeModal('modalValidacao')">Reprovar</button>
+      <button class="btn btn-primary" style="flex:1" onclick="closeModal('modalValidacao')">✅ Aprovar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============ DADOS ============
+  const trainings = [
+    {id:1,name:'Drible em Zigue-Zague',desc:'Treino de condução e drible em zigue-zague utilizando cones para melhorar o controle de bola e mudanças de direção.',modality:'campo',skill:'Drible / Finta',category:'Técnico',difficulty:'Médio',duration:'10 min',icon:'⚽',video:'https://www.youtube.com/shorts/8ID3oNim4Q4'},
+    {id:2,name:'Corrida Intervalada',desc:'Aumente sua resistência aeróbia com sprints de alta intensidade.',modality:'campo',skill:'Resistência Aeróbia',category:'Físico',difficulty:'Médio',duration:'15 min',icon:'🏃'},
+    {id:3,name:'Finalização Precisa',desc:'Melhore sua pontaria com finalizações de primeira em alvos específicos.',modality:'campo',skill:'Finalização',category:'Técnico',difficulty:'Fácil',duration:'12 min',icon:'🎯'},
+    {id:4,name:'Power Clean',desc:'Desenvolva explosão e potência com levantamento olímpico.',modality:'academia',skill:'Explosão / Potência',category:'Físico',difficulty:'Alto',duration:'20 min',icon:'🏋️'},
+    {id:5,name:'Squat Jumps',desc:'Pliometria para explosão de membros inferiores.',modality:'casa',skill:'Explosão / Potência',category:'Físico',difficulty:'Médio',duration:'10 min',icon:'💪'},
+    {id:6,name:'Passe Contra a Parede',desc:'Melhore seu passe curto e controle orientado.',modality:'casa',skill:'Passe Curto',category:'Técnico',difficulty:'Fácil',duration:'15 min',icon:'🧱'},
+    {id:7,name:'Sled Push (Trenó)',desc:'Força e aceleração com empurrar trenó de carga.',modality:'academia',skill:'Aceleração',category:'Físico',difficulty:'Alto',duration:'15 min',icon:'🛷'},
+    {id:8,name:'Rondo 4x2',desc:'4 pessoas com posse de bola e 2 marcadores tentando recuperar a bola, trabalhando a posse e a recuperação em espaço reduzido.',modality:'campo',skill:'Visão de Jogo',category:'Tático',difficulty:'Médio',duration:'20 min',icon:'🔄',video:'https://www.youtube.com/shorts/SQ_tPWet61A'},
+    {id:9,name:'Embaixadinhas',desc:'Controle de bola e coordenação motora fina.',modality:'casa',skill:'Domínio de Bola',category:'Técnico',difficulty:'Fácil',duration:'10 min',icon:'🎪'},
+    {id:10,name:'Nordic Hamstring',desc:'Prevenção de lesões e força de isquiotibiais.',modality:'academia',skill:'Velocidade Máxima',category:'Físico',difficulty:'Alto',duration:'15 min',icon:'🦵'},
+    {id:11,name:'1x1 em Corredor',desc:'Drible e contenção em espaço reduzido no corredor, focado em superar o marcador ou proteger a bola em situações de 1 contra 1.',modality:'campo',skill:'Duelo 1x1',category:'Técnico',difficulty:'Médio',duration:'15 min',icon:'⚔️',video:'https://youtu.be/AnXtVLdYR8s?si=08J8qm6bMufo-9xa'},
+    {id:12,name:'Meditação Mindfulness',desc:'Foco e concentração através de respiração guiada.',modality:'casa',skill:'Concentração',category:'Mental',difficulty:'Fácil',duration:'10 min',icon:'🧘'}
+  ];
+
+  const achievements = [
+    {name:'Mestre do Drible',desc:'Nível 3 em Drible',icon:'⭐',type:'gold',unlocked:true},
+    {name:'Velocidade Máxima',desc:'10 sprints completos',icon:'⚡',type:'silver',unlocked:true},
+    {name:'Sequência Perfeita',desc:'7 dias seguidos',icon:'🔥',type:'bronze',unlocked:true},
+    {name:'Muralha',desc:'10 desarmes em treino',icon:'🛡️',type:'gold',unlocked:false},
+    {name:'Líder Nato',desc:'Nível 5 em Mental',icon:'👑',type:'silver',unlocked:false}
+  ];
+
+  // ============ NAVEGAÇÃO ============
+  function navigateTo(page){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.getElementById('page-'+page).classList.add('active');
+    const navItem = document.querySelector(`.nav-item[data-page="${page}"]`);
+    if(navItem) navItem.classList.add('active');
+    document.querySelector('.sidebar').classList.remove('open');
+    window.scrollTo(0,0);
+    if(page==='desempenho') setTimeout(initPerformanceCharts,100);
   }
-  
-  navigateTo('exercicio');
-}
+  document.querySelectorAll('.nav-item').forEach(item=>{
+    item.addEventListener('click',()=>navigateTo(item.dataset.page));
+  });
 
+  // ============ MODAIS ============
+  function openModal(id){document.getElementById(id).classList.add('active')}
+  function closeModal(id){document.getElementById(id).classList.remove('active')}
+  function openCompletionModal(){openModal('modalConclusao')}
+  function openValidationModal(){openModal('modalValidacao')}
 
-              </script>
-                        </body>
-                        </html>
-                    
+  // ============ TREINAMENTOS ============
+  function renderTrainings(containerId, list){
+    const container = document.getElementById(containerId);
+    if(!container) return;
+    container.innerHTML = list.map(t=>`
+      <div class="training-card" onclick="openExercise(${t.id})">
+        <div class="training-icon">${t.icon}</div>
+        <div class="training-name">${t.name}</div>
+        <div class="training-desc">${t.desc}</div>
+        <div class="training-meta">
+          <span>📂 ${t.modality==='academia'?'Academia':t.modality==='campo'?'Campo':'Casa'}</span>
+          <span>⚡ ${t.difficulty}</span>
+          <span>⏱️ ${t.duration}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function openExercise(id){
+    const t = trainings.find(x=>x.id===id);
+    if(!t) return;
+    document.getElementById('exName').textContent = t.name;
+    document.getElementById('exDesc').textContent = t.desc;
+    document.getElementById('exModality').textContent = t.modality==='academia'?'Academia':t.modality==='campo'?'Campo':'Casa';
+    document.getElementById('exSkill').textContent = t.skill;
+    document.getElementById('exDifficulty').textContent = t.difficulty;
+    document.getElementById('exDuration').textContent = t.duration;
+    document.getElementById('exCategory').textContent = t.category;
+    
+    // Handle video embedding
+    const videoContainer = document.getElementById('exVideo');
+    if (t.video) {
+      let embedUrl = t.video;
+      if (embedUrl.includes('youtube.com/shorts/')) {
+        const videoId = embedUrl.split('/shorts/')[1].split('?')[0];
+        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      } else if (embedUrl.includes('youtu.be/')) {
+        const videoId = embedUrl.split('youtu.be/')[1].split('?')[0];
+        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      } else if (embedUrl.includes('youtube.com/watch?v=')) {
+        const videoId = embedUrl.split('v=')[1].split('&')[0];
+        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      }
+      videoContainer.innerHTML = `<iframe width="100%" height="100%" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px;"></iframe>`;
+    } else {
+      videoContainer.innerHTML = `▶️ Vídeo do YouTube/Instagram incorporado aqui<br><small style="margin-top:8px;display:block">(Link cadastrado pelo administrador)</small>`;
+    }
+    
+    navigateTo('exercicio');
+  }
+
+  renderTrainings('trainingsCatalog', trainings);
+  renderTrainings('recommendedTrainings', trainings.slice(0,3));
+
+  // ============ FILTROS ============
+  document.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      this.parentElement.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      this.classList.add('active');
+      
+      const filter = this.dataset.filter;
+      if(!filter) return;
+      
+      let filtered = trainings;
+      if(filter!=='todos'){
+        filtered = trainings.filter(t=>{
+          if(['academia','campo','casa'].includes(filter)) return t.modality===filter;
+          if(filter==='tecnico') return t.category==='Técnico';
+          if(filter==='fisico') return t.category==='Físico';
+          if(filter==='tatico') return t.category==='Tático';
+          return true;
+        });
+      }
+      renderTrainings('trainingsCatalog', filtered);
+    });
+  });
+
+  // ============ GRÁFICOS ============
+  function initPerformanceCharts(){
+    const radarCtx = document.getElementById('radarChart');
+    if(radarCtx){
+      new Chart(radarCtx, {
+        type: 'radar',
+        data: {
+          labels: ['Ataque', 'Técnica', 'Velocidade', 'Físico', 'Defesa', 'Mental'],
+          datasets: [{
+            label: 'Seu Nível',
+            data: [82, 85, 78, 75, 70, 65],
+            borderColor: '#39ff14',
+            backgroundColor: 'rgba(57,255,20,0.2)',
+            pointBackgroundColor: '#39ff14'
+          }, {
+            label: 'Média da Categoria',
+            data: [70, 72, 68, 70, 65, 60],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59,130,246,0.1)',
+            pointBackgroundColor: '#3b82f6'
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            r: {
+              angleLines: { color: 'rgba(255,255,255,0.1)' },
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              pointLabels: { color: '#9ca3af', font: { size: 12 } },
+              ticks: { display: false, max: 100 }
+            }
+          },
+          plugins: {
+            legend: { labels: { color: '#ffffff' } }
+          }
+        }
+      });
+    }
+
+    const lineCtx = document.getElementById('lineChart');
+    if(lineCtx){
+      new Chart(lineCtx, {
+        type: 'line',
+        data: {
+          labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+          datasets: [{
+            label: 'Desempenho Geral',
+            data: [60, 65, 72, 78],
+            borderColor: '#39ff14',
+            backgroundColor: 'rgba(57,255,20,0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { 
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#9ca3af' }
+            },
+            x: { 
+              grid: { display: false },
+              ticks: { color: '#9ca3af' }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+  }
+
+  // Fechar modal ao clicar fora
+  document.querySelectorAll('.modal').forEach(modal=>{
+    modal.addEventListener('click',function(e){
+      if(e.target===this) closeModal(this.id);
+    });
+  });
+</script>
+</body>
+</html>
